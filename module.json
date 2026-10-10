@@ -3,6 +3,9 @@
   "title": "Awesome VTT – Demon Lord Character Builder",
   "description": "A guided character builder for Shadow of the Demon Lord, in the style of Hero Mancer: one window walks ancestry, attributes, paths, magic, professions and languages, background tables and starting equipment with a live preview, and levels existing characters up. Uses the ancestries, paths, spells and tables of the compendiums you own (such as the core book's); no game content is included.",
   "version": "0.2.0",
+  "url": "https://github.com/Drakknar/awesome-vtt-sotdl-builder",
+  "manifest": "https://github.com/Drakknar/awesome-vtt-sotdl-builder/releases/latest/download/module.json",
+  "download": "https://github.com/Drakknar/awesome-vtt-sotdl-builder/releases/download/v0.2.0/module.zip",
   "authors": [
     {
       "name": "Stefano Pignataro"
