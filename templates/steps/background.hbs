@@ -1,0 +1,57 @@
+<div class="avtsb-step avtsb-step-background">
+  <div class="avtsb-identity">
+    <button type="button" class="avtsb-portrait" data-action="pickImage" aria-label="{{localize 'AVTTSB.Background.Portrait'}}" data-tooltip>
+      {{#if plan.img}}<img src="{{plan.img}}" alt="">{{else}}<i class="fa-solid fa-image" inert></i>{{/if}}
+    </button>
+    <label class="avtsb-field avtsb-grow">{{localize "AVTTSB.Background.Name"}}
+      <input type="text" name="name" value="{{plan.name}}" maxlength="120" required>
+    </label>
+  </div>
+
+  {{#if tables.length}}
+    <h3>{{localize "AVTTSB.Background.Tables"}}</h3>
+    <p class="avtsb-hint">{{localize "AVTTSB.Background.TablesHint"}}</p>
+    <div class="avtsb-traits">
+      {{#each tables}}
+        <div class="avtsb-trait">
+          <label for="avtsb-trait-{{@index}}">{{label}}</label>
+          <button type="button" class="avtsb-icon" data-action="rollTrait" data-uuid="{{uuid}}" data-label="{{label}}"
+            aria-label="{{localize 'AVTTSB.Roll'}} {{label}}" data-tooltip><i class="fa-solid fa-dice" inert></i></button>
+          <select data-trait="{{label}}" data-picker aria-label="{{localize 'AVTTSB.Background.Pick'}} {{label}}">
+            {{selectOptions entries.options selected=text groups=entries.groups blank=(localize "AVTTSB.Background.PickPlaceholder")}}
+          </select>
+          <textarea id="avtsb-trait-{{@index}}" data-trait="{{label}}" rows="2" maxlength="1000">{{text}}</textarea>
+        </div>
+      {{/each}}
+    </div>
+  {{/if}}
+
+  <h3>{{localize "AVTTSB.Background.Interesting"}}</h3>
+  <div class="avtsb-trait">
+    <span class="avtsb-trait-name">{{localize "AVTTSB.Background.InterestingPick"}}</span>
+    {{#if interesting}}
+      <button type="button" class="avtsb-icon" data-action="rollInteresting" aria-label="{{localize 'AVTTSB.Roll'}}" data-tooltip>
+        <i class="fa-solid fa-dice" inert></i></button>
+      <select name="bio.interesting" data-picker aria-label="{{localize 'AVTTSB.Background.Pick'}} {{localize 'AVTTSB.Background.Interesting'}}">
+        {{selectOptions interesting.options selected=plan.bio.interesting groups=interesting.groups
+          blank=(localize "AVTTSB.Background.PickPlaceholder")}}
+      </select>
+    {{/if}}
+    <textarea name="bio.interesting" rows="2" maxlength="1000" aria-label="{{localize 'AVTTSB.Background.Interesting'}}">{{plan.bio.interesting}}</textarea>
+  </div>
+
+  <h3>{{localize "AVTTSB.Background.Details"}}</h3>
+  <div class="avtsb-grid">
+    <label class="avtsb-field">{{localize "AVTTSB.Background.Religion"}}
+      <input type="text" name="bio.religion" value="{{plan.bio.religion}}" maxlength="500">
+    </label>
+    {{#each appearance}}
+      <label class="avtsb-field">{{label}}
+        <input type="text" name="bio.appearance.{{key}}" value="{{value}}" maxlength="200">
+      </label>
+    {{/each}}
+  </div>
+  <label class="avtsb-field">{{localize "AVTTSB.Background.Notes"}}
+    <textarea name="bio.notes" rows="4" maxlength="4000">{{plan.bio.notes}}</textarea>
+  </label>
+</div>

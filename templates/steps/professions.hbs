@@ -1,0 +1,66 @@
+<div class="avtsb-step avtsb-step-professions">
+  {{> avtsb-guidance}}
+
+  <h3>{{localize "AVTTSB.Professions.Title"}} ({{professionCount}})</h3>
+  <p class="avtsb-hint">{{localize "AVTTSB.Professions.Rules"}}</p>
+  <p class="avtsb-note"><i class="fa-solid fa-scale-balanced" inert></i> {{allowanceText}}</p>
+  {{#if allowance.over}}
+    <p class="avtsb-warning"><i class="fa-solid fa-triangle-exclamation" inert></i> {{localize "AVTTSB.Professions.Over"}}</p>
+  {{/if}}
+  <ul class="avtsb-list">
+    {{#each professions}}
+      <li>
+        {{#if uuid}}<button type="button" class="avtsb-link" data-action="showItem" data-uuid="{{uuid}}">{{name}}</button>
+        {{else}}<span>{{name}}</span>{{/if}}
+        {{#if text}}<span class="avtsb-muted">{{text}}</span>{{/if}}
+        <button type="button" class="avtsb-icon" data-action="removeAt" data-list="professions" data-index="{{index}}"
+          aria-label="{{localize 'AVTTSB.Remove'}}" data-tooltip><i class="fa-solid fa-xmark" inert></i></button>
+      </li>
+    {{/each}}
+  </ul>
+  <div class="avtsb-filters">
+    {{#if canRoll}}
+      <button type="button" data-action="rollProfession" {{#unless allowance.canAddProfession}}disabled{{/unless}}><i class="fa-solid fa-dice" inert></i> {{localize "AVTTSB.Professions.Roll"}}</button>
+    {{/if}}
+    <input type="text" name="customProfession" maxlength="120" placeholder="{{localize 'AVTTSB.Professions.Custom'}}"
+      aria-label="{{localize 'AVTTSB.Professions.Custom'}}">
+    <button type="button" data-action="addCustomProfession" {{#unless allowance.canAddProfession}}disabled{{/unless}}><i class="fa-solid fa-plus" inert></i> {{localize "AVTTSB.Add"}}</button>
+  </div>
+  <div class="avtsb-filters">
+    <input type="search" data-filter="professions" placeholder="{{localize 'AVTTSB.Search'}}" aria-label="{{localize 'AVTTSB.Search'}}">
+  </div>
+  <ul class="avtsb-list avtsb-scroll avtsb-scroll-short" data-filter-list="professions">
+    {{#each professionList}}
+      <li data-search="{{search}}">
+        <button type="button" class="avtsb-link" data-action="showItem" data-uuid="{{uuid}}">{{name}}</button>
+        <button type="button" class="avtsb-icon" data-action="addProfession" data-uuid="{{uuid}}"
+          {{#unless ../allowance.canAddProfession}}disabled{{/unless}} aria-label="{{localize 'AVTTSB.Add'}}" data-tooltip><i class="fa-solid fa-plus" inert></i></button>
+      </li>
+    {{/each}}
+  </ul>
+
+  <h3>{{localize "AVTTSB.Languages.Title"}} <small>{{localize "AVTTSB.Languages.Extra"}} {{languageCount}}</small></h3>
+  <table class="avtsb-table">
+    <thead><tr><th>{{localize "AVTTSB.Languages.Language"}}</th><th>{{localize "AVTTSB.Languages.Read"}}</th>
+      <th>{{localize "AVTTSB.Languages.Write"}}</th><th></th></tr></thead>
+    <tbody>
+      {{#each languages}}
+        <tr>
+          <th scope="row">{{name}}{{#if auto}} <small class="avtsb-muted">{{localize "AVTTSB.Languages.FromAncestry"}}</small>{{/if}}</th>
+          <td><input type="checkbox" data-language="{{name}}" data-flag="read" {{checked read}} aria-label="{{localize 'AVTTSB.Languages.Read'}}"></td>
+          <td><input type="checkbox" data-language="{{name}}" data-flag="write" {{checked write}} aria-label="{{localize 'AVTTSB.Languages.Write'}}"></td>
+          <td>{{#unless auto}}<button type="button" class="avtsb-icon" data-action="removeAt" data-list="languages" data-index="{{index}}"
+            aria-label="{{localize 'AVTTSB.Remove'}}" data-tooltip><i class="fa-solid fa-xmark" inert></i></button>{{/unless}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{#if languageOptions.length}}
+    <div class="avtsb-filters">
+      <select name="addLanguage" aria-label="{{localize 'AVTTSB.Languages.Add'}}">
+        {{#each languageOptions}}<option value="{{uuid}}">{{name}}</option>{{/each}}
+      </select>
+      <button type="button" data-action="addLanguage" {{#unless allowance.canAddLanguage}}disabled{{/unless}}><i class="fa-solid fa-plus" inert></i> {{localize "AVTTSB.Languages.Add"}}</button>
+    </div>
+  {{/if}}
+</div>

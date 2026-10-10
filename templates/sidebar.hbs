@@ -1,0 +1,42 @@
+<aside class="avtsb-sidebar" aria-label="{{localize 'AVTTSB.Hud.Label'}}">
+  <section class="avtsb-hud">
+    <img class="avtsb-hud-portrait" src="{{hud.img}}" alt="">
+    <div>
+      <h2 class="avtsb-hud-name">{{hud.name}}</h2>
+      <p class="avtsb-hud-line">{{hud.line}}</p>
+      {{#if canSetLevel}}
+        <label class="avtsb-hud-level">{{#if levelUp}}{{localize "AVTTSB.LevelUp.NewLevel"}}{{else}}{{localize "AVTTSB.Hud.StartLevel"}}{{/if}}
+          <select name="level">{{selectOptions levelChoices selected=selectedLevel}}</select>
+        </label>
+      {{/if}}
+    </div>
+    <dl class="avtsb-hud-scores">
+      {{#each hud.scores}}
+        <div class="avtsb-hud-score" data-tooltip="{{label}}">
+          <dt>{{label}}</dt>
+          <dd><strong>{{value}}</strong> <span>{{mod}}</span></dd>
+        </div>
+      {{/each}}
+    </dl>
+    <dl class="avtsb-hud-chars">
+      {{#each hud.characteristics}}
+        <div class="avtsb-hud-char"><dt>{{label}}</dt><dd>{{value}}</dd></div>
+      {{/each}}
+    </dl>
+  </section>
+  <nav class="avtsb-nav" aria-label="{{localize 'AVTTSB.Nav.Label'}}">
+    <ol>
+      {{#each steps}}
+        <li>
+          <button type="button" class="avtsb-nav-btn{{#if active}} active{{/if}}" data-action="step" data-step="{{id}}"
+            {{#if active}}aria-current="step"{{/if}}>
+            <i class="{{icon}}" inert></i>
+            <span class="avtsb-nav-label">{{label}}</span>
+            {{#if missing}}<span class="avtsb-badge" data-tooltip="{{localize 'AVTTSB.Nav.Missing'}}">{{missing}}</span>
+            {{else}}{{#unless (eq id "review")}}<i class="fa-solid fa-check avtsb-done" inert></i>{{/unless}}{{/if}}
+          </button>
+        </li>
+      {{/each}}
+    </ol>
+  </nav>
+</aside>

@@ -1,0 +1,12 @@
+<div class="avtsb-step avtsb-step-review">
+  {{#if problems.length}}
+    <div class="avtsb-warning">
+      <p><i class="fa-solid fa-triangle-exclamation" inert></i> {{localize "AVTTSB.Review.Incomplete"}}</p>
+      <ul>{{#each problems}}<li>{{this}}</li>{{/each}}</ul>
+    </div>
+  {{/if}}
+  <dl class="avtsb-summary">
+    {{#each rows}}<dt>{{label}}</dt><dd>{{value}}</dd>{{/each}}
+  </dl>
+  <p class="avtsb-hint">{{after}}</p>
+</div>

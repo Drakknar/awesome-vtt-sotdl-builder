@@ -1,0 +1,82 @@
+<div class="avtsb-step avtsb-step-paths">
+  {{#each tiers}}
+    <section class="avtsb-tier">
+      <h3>{{label}} <small>{{hint}}</small></h3>
+      {{#if options.length}}
+        <div class="avtsb-cards avtsb-cards-small">
+          {{#each options}}
+            <button type="button" class="avtsb-card{{#if selected}} selected{{/if}}" data-action="pickPath"
+              data-tier="{{../id}}" data-uuid="{{uuid}}" aria-pressed="{{#if selected}}true{{else}}false{{/if}}"
+              data-tooltip="{{source}}">
+              <img src="{{img}}" alt="">
+              <span>{{name}}</span>
+            </button>
+          {{/each}}
+        </div>
+      {{else unless owned}}
+        <p class="avtsb-warning">{{localize "AVTTSB.Paths.None"}}</p>
+      {{/if}}
+
+      {{#with selected}}
+        <div class="avtsb-levels">
+          <p><button type="button" class="avtsb-chip" data-action="showItem" data-uuid="{{uuid}}">
+            <i class="fa-solid fa-book-open" inert></i> {{name}}</button></p>
+          {{#each levels}}
+            <article class="avtsb-level{{#if missing}} incomplete{{/if}}">
+              <h4>{{localize "AVTTSB.Paths.Level"}} {{level}}
+                {{#if missing}}<span class="avtsb-badge">{{missing}}</span>{{/if}}</h4>
+              {{#if characteristics}}<p>{{characteristics}}</p>{{/if}}
+              {{#if attrs}}
+                <fieldset class="avtsb-choice">
+                  <legend>{{attrHint}} ({{attrCount}})</legend>
+                  {{#each attrs}}
+                    <button type="button" class="avtsb-toggle{{#if checked}} active{{/if}}" data-action="toggleAttr"
+                      data-tier="{{../tier}}" data-level="{{../level}}" data-attr="{{key}}"
+                      aria-pressed="{{#if checked}}true{{else}}false{{/if}}" {{#if disabled}}disabled{{/if}}>{{label}}</button>
+                  {{/each}}
+                </fieldset>
+              {{/if}}
+              {{#if talents.length}}
+                <p><strong>{{localize "AVTTSB.Paths.Talents"}}</strong>
+                  {{#each talents}}<button type="button" class="avtsb-chip" data-action="showItem" data-uuid="{{uuid}}">{{name}}</button>{{/each}}
+                </p>
+              {{/if}}
+              {{#if picks.length}}
+                <fieldset class="avtsb-choice avtsb-picks">
+                  <legend>{{localize "AVTTSB.Paths.PickOne"}} ({{pickCount}})</legend>
+                  {{#each picks}}
+                    <button type="button" class="avtsb-pick{{#if checked}} active{{/if}}" data-action="pickTalent"
+                      data-tier="{{../tier}}" data-level="{{../level}}" data-pick="{{id}}"
+                      aria-pressed="{{#if checked}}true{{else}}false{{/if}}">
+                      <strong>{{name}}</strong><span>{{text}}</span>
+                    </button>
+                  {{/each}}
+                </fieldset>
+              {{/if}}
+              {{#each notes}}<p class="avtsb-note"><i class="fa-solid fa-circle-info" inert></i> {{this}}</p>{{/each}}
+            </article>
+          {{/each}}
+        </div>
+      {{/with}}
+    </section>
+  {{/each}}
+
+  {{#with ancestryLevel4}}
+    <section class="avtsb-tier">
+      <h3>{{localize "AVTTSB.Paths.AncestryLevel4"}} {{#if missing}}<span class="avtsb-badge">1</span>{{/if}}</h3>
+      <fieldset class="avtsb-choice">
+        <legend>{{localize "AVTTSB.Paths.AncestryLevel4Hint"}}</legend>
+        <label class="avtsb-radio"><input type="radio" name="ancestry.l4" value="talent" {{checked isTalent}}>
+          {{localize "AVTTSB.Paths.GainTalent"}} ({{talent}})</label>
+        <label class="avtsb-radio"><input type="radio" name="ancestry.l4" value="spell" {{checked isSpell}}>
+          {{localize "AVTTSB.Paths.LearnSpell"}}</label>
+        {{#if isSpell}}
+          {{#if noTraditions}}<p class="avtsb-note">{{localize "AVTTSB.Paths.L4NoTraditions"}}</p>{{/if}}
+          <select name="ancestry.l4Spell" aria-label="{{localize 'AVTTSB.Paths.LearnSpell'}}">
+            {{selectOptions spellChoices selected=l4Spell blank="—"}}
+          </select>
+        {{/if}}
+      </fieldset>
+    </section>
+  {{/with}}
+</div>

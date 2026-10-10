@@ -1,0 +1,45 @@
+<div class="avtsb-step avtsb-step-ancestry">
+  {{#unless choices.length}}
+    <p class="avtsb-warning"><i class="fa-solid fa-triangle-exclamation" inert></i> {{localize "AVTTSB.Ancestry.None"}}</p>
+  {{/unless}}
+  <div class="avtsb-cards">
+    {{#each choices}}
+      <button type="button" class="avtsb-card{{#if selected}} selected{{/if}}" data-action="pickAncestry" data-uuid="{{uuid}}"
+        aria-pressed="{{#if selected}}true{{else}}false{{/if}}" data-tooltip="{{source}}">
+        <img src="{{img}}" alt="">
+        <span>{{name}}</span>
+      </button>
+    {{/each}}
+  </div>
+
+  {{#with selected}}
+    <article class="avtsb-detail">
+      <header class="avtsb-detail-header">
+        <img src="{{img}}" alt="">
+        <h3>{{name}}</h3>
+      </header>
+
+      {{#if sizes}}
+        <fieldset class="avtsb-choice">
+          <legend>{{localize "AVTTSB.Ancestry.Size"}}</legend>
+          {{#each sizes}}
+            <label class="avtsb-radio"><input type="radio" name="ancestry.size" value="{{value}}" {{checked checked}}> {{value}}</label>
+          {{/each}}
+        </fieldset>
+      {{/if}}
+
+      {{#if talents.length}}
+        <p><strong>{{localize "AVTTSB.Ancestry.Talents"}}</strong>
+          {{#each talents}}<button type="button" class="avtsb-chip" data-action="showItem" data-uuid="{{uuid}}">{{name}}</button>{{/each}}
+        </p>
+      {{/if}}
+      {{#if languages}}<p><strong>{{localize "AVTTSB.Ancestry.Languages"}}</strong> {{languages}}</p>{{/if}}
+      {{#if level4}}<p><strong>{{localize "AVTTSB.Ancestry.Level4Label"}}</strong> {{level4}}</p>{{/if}}
+
+      <details class="avtsb-description">
+        <summary>{{localize "AVTTSB.Ancestry.Description"}}</summary>
+        <div class="avtsb-rich">{{{description}}}</div>
+      </details>
+    </article>
+  {{/with}}
+</div>

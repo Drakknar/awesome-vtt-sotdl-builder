@@ -1,0 +1,264 @@
+{
+  "AVTTSB": {
+    "Title": "Demon Lord Character Builder",
+    "Launch": "Build Character",
+    "WrongSystem": "The character builder works only in Shadow of the Demon Lord worlds.",
+    "WorldItems": "World items",
+    "Add": "Add",
+    "Remove": "Remove",
+    "Roll": "Roll",
+    "Search": "Search…",
+    "None": "None yet.",
+    "Step": {
+      "ancestry": "Ancestry",
+      "attributes": "Attributes",
+      "paths": "Paths",
+      "magic": "Magic",
+      "professions": "Professions & Languages",
+      "background": "Background",
+      "equipment": "Equipment",
+      "review": "Review"
+    },
+    "Hint": {
+      "ancestry": "Choose your ancestry. It sets your starting attributes, characteristics, talents and languages.",
+      "attributes": "Your starting scores come from your ancestry. You may adjust them once: raise one score by 1 by lowering another by 1.",
+      "paths": "Choose a path for each tier your starting level reaches, and make the choices of each level up to it.",
+      "magic": "Learn the spells your ancestry and paths allow. A spell's rank must be equal to or lower than your Power.",
+      "professions": "You begin with two professions. Add the languages you know and mark the ones you can read or write.",
+      "background": "Name your character and roll or write the details of their story.",
+      "equipment": "Roll your wealth to find your lifestyle and starting equipment, then add what you carry.",
+      "review": "Check the character and create it."
+    },
+    "Tier": {
+      "novice": "Novice path",
+      "expert": "Expert path",
+      "master": "Master path"
+    },
+    "Attr": {
+      "strength": "Strength",
+      "agility": "Agility",
+      "intellect": "Intellect",
+      "will": "Will"
+    },
+    "Char": {
+      "health": "Health",
+      "healingRate": "Healing rate",
+      "defense": "Defense",
+      "perception": "Perception",
+      "speed": "Speed",
+      "size": "Size",
+      "power": "Power",
+      "insanity": "Insanity"
+    },
+    "Coin": {
+      "bits": "bits",
+      "cp": "cp",
+      "ss": "ss",
+      "gc": "gc"
+    },
+    "Appearance": {
+      "age": "Age",
+      "sex": "Sex",
+      "eyes": "Eyes",
+      "hair": "Hair",
+      "height": "Height",
+      "weight": "Weight",
+      "feature": "Distinctive feature"
+    },
+    "Hud": {
+      "Label": "Character preview",
+      "Unnamed": "Unnamed character",
+      "Level": "Level {level}",
+      "StartLevel": "Starting level"
+    },
+    "Nav": {
+      "Label": "Steps",
+      "Missing": "Choices left in this step"
+    },
+    "Footer": {
+      "Back": "Back",
+      "Next": "Next",
+      "Create": "Create Character",
+      "Restart": "Start Over",
+      "Progress": "Steps completed"
+    },
+    "Restart": {
+      "Title": "Start Over",
+      "Content": "Discard this build and start a new character?"
+    },
+    "Ancestry": {
+      "None": "No ancestries found. Ask your GM to enable a compendium with Shadow of the Demon Lord ancestries (for example the core book's), or to create ancestry items in the world.",
+      "Size": "Size",
+      "Talents": "Talents:",
+      "Languages": "Languages:",
+      "Level4Label": "At level 4:",
+      "Level4": "You either learn one spell or gain {talent}.",
+      "Description": "Description and tables"
+    },
+    "Attributes": {
+      "NoAncestry": "Choose an ancestry first.",
+      "Attribute": "Attribute",
+      "Ancestry": "Ancestry",
+      "Bonus": "Ancestry choice",
+      "Adjust": "Adjustment",
+      "Final": "At your level",
+      "Modifier": "Modifier",
+      "BonusHint": "Your ancestry lets you choose an attribute to increase by 1.",
+      "AdjustLegend": "Adjust your scores (optional, once)",
+      "AdjustHint": "Raise one score by 1 by lowering another score by 1.",
+      "Raise": "Raise",
+      "Lower": "Lower",
+      "LaterHint": "The \"At your level\" column includes the increases you choose on the Paths step."
+    },
+    "Paths": {
+      "TierHint": "chosen at level {level}",
+      "None": "No paths of this tier found in the enabled compendiums.",
+      "Level": "Level",
+      "ChooseAttrs": "Increase {n} attributes by {value}",
+      "Talents": "Gains:",
+      "PickOne": "Choose one",
+      "AncestryLevel4": "Ancestry, level 4",
+      "AncestryLevel4Hint": "Choose one benefit",
+      "GainTalent": "Gain the talent",
+      "LearnSpell": "Learn one spell",
+      "L4NoTraditions": "Spells come from traditions you have discovered: discover one on the Magic step first, or take the talent."
+    },
+    "Magic": {
+      "Castings": "Castings per spell:",
+      "Rank": "rank",
+      "Rules": "When you discover a tradition, you also learn one of its rank 0 spells. Other spells must come from a tradition you have discovered, with a rank no higher than your Power. The counts follow your paths' instructions for the levels you gain.",
+      "L4Note": "Your ancestry's level-4 spell is chosen on the Paths step.",
+      "Chosen": "Spells",
+      "Traditions": "Traditions",
+      "AllTraditions": "All traditions",
+      "Browse": "Find spells",
+      "NoSpells": "No spells to learn: discover a tradition first, or no spell of your traditions is within your Power.",
+      "NoGrants": "Your ancestry and paths grant no traditions or spells at these levels.",
+      "Over": "You have more traditions or spells than these levels allow, or spells your traditions or Power don't allow (the level or a path changed). Remove some to continue.",
+      "Known": "Already known",
+      "FreeSpell": "Rank 0 spell…",
+      "FreeSpellHint": "Choose the rank 0 spell you learn with this tradition.",
+      "AddTradition": "Discover tradition",
+      "FullTraditions": "You can't discover more traditions: your paths at these levels allow no more (a spell you learned uses the same choice).",
+      "FullSpells": "You can't learn more spells: your paths at these levels allow no more (a tradition you discovered uses the same choice)."
+    },
+    "Professions": {
+      "Title": "Professions",
+      "Rules": "You begin with two professions. Your ancestry and paths may add more, or let you choose between a profession and a language; you can also trade a profession to speak another language.",
+      "Roll": "Roll a profession",
+      "Custom": "Other profession",
+      "RollFailed": "The profession tables weren't found.",
+      "Rolled": "Rolled: {kind}, {name}.",
+      "Allowance": "Professions {professions} of {maxProfessions} · professions and extra languages {used} of {budget}",
+      "Full": "You can't add more professions: your ancestry and paths at this level allow no more (an extra language uses the same allowance).",
+      "Over": "You have more professions or extra languages than your level allows (the level, ancestry or a path changed). Remove some to continue."
+    },
+    "Languages": {
+      "Title": "Languages",
+      "Language": "Language",
+      "Read": "Read",
+      "Write": "Write",
+      "FromAncestry": "(ancestry)",
+      "Add": "Add language",
+      "Full": "You can't add more languages: they share the allowance with your professions. Remove a profession to trade it for a language.",
+      "Extra": "extra:"
+    },
+    "Background": {
+      "Name": "Name",
+      "Portrait": "Choose a portrait",
+      "Tables": "Ancestry tables",
+      "TablesHint": "Choose an entry from your ancestry's tables, roll for it, or write your own. Some results give Insanity, Corruption or extra items: apply those on the sheet.",
+      "Interesting": "Interesting thing",
+      "Details": "Details",
+      "Religion": "Religion",
+      "Notes": "Notes",
+      "Pick": "Choose an entry for",
+      "PickPlaceholder": "Choose an entry…",
+      "InterestingPick": "Choose, roll or write"
+    },
+    "Equipment": {
+      "Lifestyle": "Lifestyle",
+      "RollWealth": "Roll wealth (3d6)",
+      "Rolled": "Rolled:",
+      "RollFailed": "The Wealth table wasn't found.",
+      "LoadKits": "Show starting equipment",
+      "LoadKitsHint": "Reads the rulebook page set in the module settings; this can take a moment.",
+      "Loading": "Loading the starting equipment page…",
+      "KitsMissing": "The starting equipment page wasn't found. Check the module setting.",
+      "KitHint": "Add the items you take (where the text offers a choice, pick one).",
+      "RollPurse": "Roll your purse",
+      "CoinsRolled": "Rolled {total} {coin}.",
+      "LevelCoins": "Higher level: roll 2d6 ss per level ({n})",
+      "Coins": "Coins",
+      "Items": "Equipment",
+      "Quantity": "Quantity",
+      "Browse": "Find equipment"
+    },
+    "Review": {
+      "Level": "Level",
+      "Incomplete": "Some choices are still missing:",
+      "Missing": "{step}: {n} left",
+      "After": "The system adds your ancestry and path talents when the character is created. Apply anything rolled on the background tables (Insanity, Corruption, extra coins) on the sheet.",
+      "Talents": "Talents"
+    },
+    "Create": {
+      "Incomplete": "Finish the missing choices first.",
+      "Done": "{name} is ready.",
+      "CreatedFor": "Created {name} for {user}.",
+      "Error": {
+        "Name": "The character needs a name.",
+        "Ancestry": "The chosen ancestry isn't available.",
+        "Path": "The chosen {tier} isn't available.",
+        "Failed": "The character couldn't be created.",
+        "NoGM": "A GM must be logged in to create your character (you don't have permission to create actors).",
+        "Timeout": "The GM's client didn't answer. Try again.",
+        "NotAllowed": "Your GM hasn't allowed players to create characters with the builder.",
+        "TooMany": "The build has more professions or languages than its level allows.",
+        "TooMuchMagic": "The build has more traditions or spells than its levels allow, or a tradition without its rank 0 spell."
+      }
+    },
+    "Settings": {
+      "StartLevel": {
+        "Name": "Starting level",
+        "Hint": "The level new characters start at. The book assumes level 0; to start higher it suggests 1, 3 or 7."
+      },
+      "PlayersChooseLevel": {
+        "Name": "Players choose the level",
+        "Hint": "Let players change the starting level in the builder. GMs can always change it."
+      },
+      "PlayersMayCreate": {
+        "Name": "Players may create characters",
+        "Hint": "Players without the \"Create new actors\" permission can still finish a build; the GM's client creates the character and gives them ownership. A GM must be logged in."
+      },
+      "AssignCharacter": {
+        "Name": "Assign as the player's character",
+        "Hint": "Set a new character as its player's assigned character when they don't have one yet."
+      },
+      "EquipmentPage": {
+        "Name": "Starting equipment page",
+        "Hint": "UUID of the journal page that lists starting equipment by lifestyle (the core book's by default). Leave empty to turn off."
+      }
+    },
+    "LinkedEntry": "(linked entry)",
+    "Count": "{n} of {max}",
+    "LevelUp": {
+      "Launch": "Level Up",
+      "Title": "Level Up: {name}",
+      "Submit": "Level Up",
+      "Levels": "Level {from} → {to}",
+      "NewLevel": "New level",
+      "Gains": "Increases",
+      "Done": "{name} is now level {level}.",
+      "After": "The system adds the new levels' talents and enables their effects. Health, castings and other derived values update on the sheet.",
+      "Hint": {
+        "paths": "Make the choices of each level your character gains, and choose a new path when you reach level 1, 3 or 7.",
+        "professions": "Add the professions or languages your new levels grant.",
+        "review": "Check what your character gains and apply the level up."
+      },
+      "Error": {
+        "NotOwner": "You can only level up a Shadow of the Demon Lord character you own, below level 10.",
+        "Level": "The new level must be higher than the current one."
+      }
+    }
+  }
+}

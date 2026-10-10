@@ -1,0 +1,21 @@
+<footer class="avtsb-footer">
+  <button type="button" data-action="back" {{#if isFirst}}disabled{{/if}}>
+    <i class="fa-solid fa-chevron-left" inert></i> {{localize "AVTTSB.Footer.Back"}}
+  </button>
+  <div class="avtsb-progress" role="progressbar" aria-valuemin="0" aria-valuemax="{{progress.max}}"
+    aria-valuenow="{{progress.value}}" aria-label="{{localize 'AVTTSB.Footer.Progress'}}">
+    <div class="avtsb-progress-fill" style="--avtsb-progress: {{progress.value}} / {{progress.max}}"></div>
+  </div>
+  <button type="button" data-action="restart">
+    <i class="fa-solid fa-rotate-left" inert></i> {{localize "AVTTSB.Footer.Restart"}}
+  </button>
+  {{#if isLast}}
+    <button type="button" data-action="submit" class="avtsb-primary" {{#unless canSubmit}}disabled{{/unless}}>
+      <i class="fa-solid fa-check" inert></i> {{submitLabel}}
+    </button>
+  {{else}}
+    <button type="button" data-action="next" class="avtsb-primary">
+      {{localize "AVTTSB.Footer.Next"}} <i class="fa-solid fa-chevron-right" inert></i>
+    </button>
+  {{/if}}
+</footer>

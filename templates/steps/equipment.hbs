@@ -1,0 +1,78 @@
+<div class="avtsb-step avtsb-step-equipment">
+  <div class="avtsb-filters">
+    <label class="avtsb-field">{{localize "AVTTSB.Equipment.Lifestyle"}}
+      <select name="equipment.lifestyle">{{selectOptions lifestyles selected=plan.equipment.lifestyle blank="—"}}</select>
+    </label>
+    {{#if canRollWealth}}
+      <button type="button" data-action="rollWealth"><i class="fa-solid fa-dice" inert></i> {{localize "AVTTSB.Equipment.RollWealth"}}</button>
+    {{/if}}
+    {{#if plan.equipment.wealthRoll}}<span class="avtsb-muted">{{localize "AVTTSB.Equipment.Rolled"}} {{plan.equipment.wealthRoll}}</span>{{/if}}
+  </div>
+
+  {{#if kit}}
+    <article class="avtsb-detail">
+      <p>{{kit.text}}</p>
+      {{#if kit.items.length}}
+        <p class="avtsb-hint">{{localize "AVTTSB.Equipment.KitHint"}}</p>
+        <div class="avtsb-chips">
+          {{#each kit.items}}
+            <button type="button" class="avtsb-chip{{#if owned}} active{{/if}}" data-action="addItem" data-uuid="{{uuid}}">
+              <i class="fa-solid fa-plus" inert></i> {{label}}</button>
+          {{/each}}
+        </div>
+      {{/if}}
+      {{#if kit.coins}}
+        <button type="button" data-action="rollCoins"><i class="fa-solid fa-coins" inert></i>
+          {{localize "AVTTSB.Equipment.RollPurse"}} ({{kit.coins.formula}} {{kit.coins.coin}})</button>
+      {{/if}}
+    </article>
+  {{else if kitsAvailable}}
+    {{#unless kitsLoaded}}
+      <p><button type="button" data-action="loadKits"><i class="fa-solid fa-book-open" inert></i> {{localize "AVTTSB.Equipment.LoadKits"}}</button>
+        <span class="avtsb-hint">{{localize "AVTTSB.Equipment.LoadKitsHint"}}</span></p>
+    {{/unless}}
+  {{/if}}
+
+  {{#if levelCoins}}
+    <p><button type="button" data-action="rollLevelCoins"><i class="fa-solid fa-coins" inert></i> {{levelCoins}}</button></p>
+  {{/if}}
+
+  <h3>{{localize "AVTTSB.Equipment.Coins"}}</h3>
+  <div class="avtsb-grid avtsb-coins">
+    {{#each coins}}
+      <label class="avtsb-field">{{label}} <input type="number" name="equipment.coins.{{key}}" value="{{value}}" min="0" step="1"></label>
+    {{/each}}
+  </div>
+
+  <h3>{{localize "AVTTSB.Equipment.Items"}} ({{items.length}})</h3>
+  <ul class="avtsb-list">
+    {{#each items}}
+      <li>
+        <img class="avtsb-thumb" src="{{img}}" alt="">
+        <button type="button" class="avtsb-link" data-action="showItem" data-uuid="{{uuid}}">{{name}}</button>
+        <input type="number" class="avtsb-qty" data-item-qty="{{index}}" value="{{qty}}" min="1" max="999"
+          aria-label="{{localize 'AVTTSB.Equipment.Quantity'}}">
+        <button type="button" class="avtsb-icon" data-action="removeAt" data-list="items" data-index="{{index}}"
+          aria-label="{{localize 'AVTTSB.Remove'}}" data-tooltip><i class="fa-solid fa-xmark" inert></i></button>
+      </li>
+    {{else}}
+      <li class="avtsb-muted">{{localize "AVTTSB.None"}}</li>
+    {{/each}}
+  </ul>
+
+  <h3>{{localize "AVTTSB.Equipment.Browse"}}</h3>
+  <div class="avtsb-filters">
+    <input type="search" data-filter="equipment" placeholder="{{localize 'AVTTSB.Search'}}" aria-label="{{localize 'AVTTSB.Search'}}">
+  </div>
+  <ul class="avtsb-list avtsb-scroll" data-filter-list="equipment">
+    {{#each catalog}}
+      <li data-search="{{search}}">
+        <img class="avtsb-thumb" src="{{img}}" alt="">
+        <button type="button" class="avtsb-link" data-action="showItem" data-uuid="{{uuid}}">{{name}}</button>
+        <span class="avtsb-muted">{{source}}</span>
+        <button type="button" class="avtsb-icon" data-action="addItem" data-uuid="{{uuid}}"
+          aria-label="{{localize 'AVTTSB.Add'}}" data-tooltip><i class="fa-solid fa-plus" inert></i></button>
+      </li>
+    {{/each}}
+  </ul>
+</div>

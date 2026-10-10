@@ -1,0 +1,70 @@
+<div class="avtsb-step avtsb-step-magic">
+  <p><strong>{{localize "AVTTSB.Char.power"}} {{power}}</strong> ·
+    {{localize "AVTTSB.Magic.Castings"}}
+    {{#each castings}}<span class="avtsb-chip avtsb-chip-static">{{localize "AVTTSB.Magic.Rank"}} {{rank}}: {{n}}</span>{{/each}}
+  </p>
+  {{> avtsb-guidance}}
+  {{#if l4Spell}}<p class="avtsb-note">{{localize "AVTTSB.Magic.L4Note"}}</p>{{/if}}
+  <p class="avtsb-hint">{{localize "AVTTSB.Magic.Rules"}}</p>
+  {{#if noGrants}}<p class="avtsb-note">{{localize "AVTTSB.Magic.NoGrants"}}</p>{{/if}}
+  {{#if over}}
+    <p class="avtsb-warning"><i class="fa-solid fa-triangle-exclamation" inert></i> {{localize "AVTTSB.Magic.Over"}}</p>
+  {{/if}}
+
+  <h3>{{localize "AVTTSB.Magic.Traditions"}} ({{traditionCount}})
+    {{#if knownTraditions}}<small>{{localize "AVTTSB.Magic.Known"}}: {{knownTraditions}}</small>{{/if}}</h3>
+  <ul class="avtsb-list">
+    {{#each traditions}}
+      <li>
+        <span>{{name}}</span>
+        <select data-tradition-spell="{{index}}" aria-label="{{localize 'AVTTSB.Magic.FreeSpell'}} {{name}}">
+          {{selectOptions spellChoices selected=spell blank=(localize "AVTTSB.Magic.FreeSpell")}}
+        </select>
+        {{#unless spell}}<span class="avtsb-badge" data-tooltip="{{localize 'AVTTSB.Magic.FreeSpellHint'}}">1</span>{{/unless}}
+        <button type="button" class="avtsb-icon" data-action="removeTradition" data-index="{{index}}"
+          aria-label="{{localize 'AVTTSB.Remove'}}" data-tooltip><i class="fa-solid fa-xmark" inert></i></button>
+      </li>
+    {{/each}}
+  </ul>
+  <div class="avtsb-filters">
+    <select name="addTradition" aria-label="{{localize 'AVTTSB.Magic.AddTradition'}}" {{#unless canAddTradition}}disabled{{/unless}}>
+      {{selectOptions addableTraditions}}
+    </select>
+    <button type="button" data-action="addTradition" {{#unless canAddTradition}}disabled{{/unless}}>
+      <i class="fa-solid fa-plus" inert></i> {{localize "AVTTSB.Magic.AddTradition"}}</button>
+  </div>
+
+  <h3>{{localize "AVTTSB.Magic.Chosen"}} ({{spellCount}})</h3>
+  <ul class="avtsb-list">
+    {{#each chosen}}
+      <li>
+        <button type="button" class="avtsb-link" data-action="showItem" data-uuid="{{uuid}}">{{name}}</button>
+        <span class="avtsb-muted">{{tradition}} {{rank}}</span>
+        <button type="button" class="avtsb-icon" data-action="removeAt" data-list="spells" data-index="{{index}}"
+          aria-label="{{localize 'AVTTSB.Remove'}}" data-tooltip><i class="fa-solid fa-xmark" inert></i></button>
+      </li>
+    {{else}}
+      <li class="avtsb-muted">{{localize "AVTTSB.None"}}</li>
+    {{/each}}
+  </ul>
+
+  <h3>{{localize "AVTTSB.Magic.Browse"}}</h3>
+  <div class="avtsb-filters">
+    <select data-filter-tradition aria-label="{{localize 'AVTTSB.Magic.Traditions'}}">
+      {{selectOptions spellTraditions selected=spellTradition blank=(localize "AVTTSB.Magic.AllTraditions")}}
+    </select>
+    <input type="search" data-filter="spells" placeholder="{{localize 'AVTTSB.Search'}}" aria-label="{{localize 'AVTTSB.Search'}}">
+  </div>
+  <ul class="avtsb-list avtsb-scroll" data-filter-list="spells">
+    {{#each spells}}
+      <li data-search="{{search}}">
+        <button type="button" class="avtsb-link" data-action="showItem" data-uuid="{{uuid}}">{{name}}</button>
+        <span class="avtsb-muted">{{tradition}} {{rank}}</span>
+        <button type="button" class="avtsb-icon" data-action="addSpell" data-uuid="{{uuid}}" {{#if disabled}}disabled{{/if}}
+          aria-label="{{localize 'AVTTSB.Add'}}" data-tooltip><i class="fa-solid fa-plus" inert></i></button>
+      </li>
+    {{else}}
+      <li class="avtsb-muted">{{localize "AVTTSB.Magic.NoSpells"}}</li>
+    {{/each}}
+  </ul>
+</div>

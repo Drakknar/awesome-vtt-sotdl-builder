@@ -1,0 +1,47 @@
+<div class="avtsb-step avtsb-step-attributes">
+  {{#if noAncestry}}
+    <p class="avtsb-warning">{{localize "AVTTSB.Attributes.NoAncestry"}}</p>
+  {{else}}
+    <table class="avtsb-table">
+      <thead>
+        <tr>
+          <th>{{localize "AVTTSB.Attributes.Attribute"}}</th>
+          <th>{{localize "AVTTSB.Attributes.Ancestry"}}</th>
+          {{#if hasBonus}}<th>{{localize "AVTTSB.Attributes.Bonus"}}</th>{{/if}}
+          <th>{{localize "AVTTSB.Attributes.Adjust"}}</th>
+          <th>{{localize "AVTTSB.Attributes.Final"}}</th>
+          <th>{{localize "AVTTSB.Attributes.Modifier"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each rows}}
+          <tr>
+            <th scope="row">{{label}}</th>
+            <td>{{base}}</td>
+            {{#if ../hasBonus}}
+              <td><label class="avtsb-radio"><input type="radio" name="ancestry.bonus" value="{{key}}" {{checked bonus}}
+                aria-label="{{label}}"> +1</label></td>
+            {{/if}}
+            <td>{{change}}</td>
+            <td><strong>{{final}}</strong></td>
+            <td>{{mod}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+    {{#if hasBonus}}<p class="avtsb-hint">{{localize "AVTTSB.Attributes.BonusHint"}}</p>{{/if}}
+
+    <fieldset class="avtsb-choice">
+      <legend>{{localize "AVTTSB.Attributes.AdjustLegend"}}</legend>
+      <p class="avtsb-hint">{{localize "AVTTSB.Attributes.AdjustHint"}}</p>
+      <label>{{localize "AVTTSB.Attributes.Raise"}}
+        <select name="ancestry.adjustUp">{{selectOptions upChoices selected=plan.ancestry.adjustUp blank="—"}}</select>
+      </label>
+      <label>{{localize "AVTTSB.Attributes.Lower"}}
+        <select name="ancestry.adjustDown">{{selectOptions downChoices selected=plan.ancestry.adjustDown blank="—"}}</select>
+      </label>
+    </fieldset>
+    <p class="avtsb-hint">{{localize "AVTTSB.Attributes.LaterHint"}}</p>
+  {{/if}}
+</div>

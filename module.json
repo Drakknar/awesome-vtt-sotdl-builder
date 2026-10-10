@@ -1,0 +1,62 @@
+{
+  "id": "awesome-vtt-sotdl-builder",
+  "title": "Awesome VTT – Demon Lord Character Builder",
+  "description": "A guided character builder for Shadow of the Demon Lord, in the style of Hero Mancer: one window walks ancestry, attributes, paths, magic, professions and languages, background tables and starting equipment with a live preview, and levels existing characters up. Uses the ancestries, paths, spells and tables of the compendiums you own (such as the core book's); no game content is included.",
+  "version": "0.2.0",
+  "authors": [
+    {
+      "name": "Stefano Pignataro"
+    }
+  ],
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "demonlord",
+        "type": "system",
+        "compatibility": {
+          "minimum": "6.1.0",
+          "verified": "6.1.11"
+        }
+      }
+    ],
+    "recommends": [
+      {
+        "id": "sdlc-1000",
+        "type": "module",
+        "reason": "The core book's ancestries, paths, professions, spells, talents and tables, which the builder offers."
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/main.mjs"
+  ],
+  "styles": [
+    "styles/builder.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "socket": true,
+  "flags": {
+    "hotReload": {
+      "extensions": [
+        "css",
+        "hbs",
+        "json"
+      ],
+      "paths": [
+        "styles",
+        "templates",
+        "lang"
+      ]
+    }
+  }
+}
