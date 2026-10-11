@@ -72,3 +72,16 @@ Guided character builder for **Shadow of the Demon Lord** (`demonlord` system 6.
 - `sdlc-1000` declares compatibility verified 13; it loads in this v14 world per the user's setup.
 - Packs are LevelDB; to inspect, copy a pack to the scratchpad, remove `LOCK`, read with `classic-level` (never open the live folder). The system's sources are in `../../systems/demonlord/module/demonlord.js.map` (`sourcesContent`), notably `item/nested-objects.js`, `active-effects/item-effects.js`, `actor/actor.js`, `data/item/*DataModel.js`.
 - After edits: `node --check scripts/*.mjs`, precompile templates, validate `lang/en.json` and `module.json`, re-run the key check; keep README and this file in step.
+
+## Upstream watch
+
+`.github/workflows/compat-review.yml` runs daily and has Claude review this module once for each new version of a dependency, following `.github/prompts/foundry-compat.md`.
+- **Game systems:** a release of a system in `relationships.systems` newer than its `verified` version.
+- **Foundry core:** a new Stable build, with a light review within the verified generation and a full review for a new generation.
+- **Results:**
+  - The module is fine: a pull request that bumps `verified`. It goes out with the next manual release.
+  - A fix: a pull request.
+  - Anything that needs the owner: an issue labelled `upstream-watch` and assigned to the owner.
+  - New features worth using: an `enhancement` issue.
+- **Access:** Claude works with read-only access (secret `CLAUDE_CODE_OAUTH_TOKEN`). A separate job opens the pull request and issues.
+- **Bookkeeping:** `.github/scripts/watch.sh` records what was reviewed on the `watch-state` branch. Run the workflow by hand with `force` to review again.
