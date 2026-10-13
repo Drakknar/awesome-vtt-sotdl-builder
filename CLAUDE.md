@@ -1,6 +1,6 @@
 # awesome-vtt-sotdl-builder – project notes and specification
 
-Guided character builder for **Shadow of the Demon Lord** (`demonlord` system 6.1.x, built against 6.1.11) on Foundry VTT **v14**, by Stefano Pignataro. Part of the Awesome VTT series by name only (see "Independence").
+Guided character builder for **Shadow of the Demon Lord** (`demonlord` system 6.1.x, built against 6.1.11, verified with 6.1.12) on Foundry VTT **v14**, by Stefano Pignataro. Part of the Awesome VTT series by name only (see "Independence").
 
 ## Origin and scope (user's request, 2026-10-10)
 - The user asked for "a new, separate module to the awesome-vtt series that uses hero-mancer as a source but allows to create characters in Shadow of the Demon Lord".
