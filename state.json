@@ -1,5 +1,7 @@
 {
   "foundry:last": "14.369",
   "system:demonlord:6.1.12": "done:2026-10-13",
-  "system:from:demonlord:6.1.12": "6.1.11"
+  "system:demonlord:6.1.13": "done:2026-10-29",
+  "system:from:demonlord:6.1.12": "6.1.11",
+  "system:from:demonlord:6.1.13": "6.1.12"
 }
