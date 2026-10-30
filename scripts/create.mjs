@@ -92,7 +92,8 @@ export function sanitizePlan(raw) {
       items: list(p.equipment?.items, e => {
         const id = uuid(e?.uuid);
         if ( !id ) return null;
-        return { uuid: id, name: str(e?.name, LIMITS.name), img: str(e?.img, 500), qty: Math.max(1, count(e?.qty, 999)) };
+        const qty = Math.max(1, count(e?.qty, 999));
+        return { uuid: id, name: str(e?.name, LIMITS.name), img: str(e?.img, 500), qty };
       }, LIMITS.items),
       coins: Object.fromEntries(COINS.map(c => [c, count(p.equipment?.coins?.[c])]))
     },
