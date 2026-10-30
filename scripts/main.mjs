@@ -12,14 +12,24 @@ const CORE_EQUIPMENT_PAGE = "Compendium.sdlc-1000.journals.JournalEntry.S9Mh1N7l
 
 const warn = key => ui.notifications.warn(game.i18n.localize(key));
 
-/** Open a builder window (or bring the open one to the front). */
+/**
+ * Open a builder window (or bring the open one to the front).
+ * @param {string} id
+ * @param {object} options
+ * @returns {unknown}
+ */
 function show(id, options) {
   const existing = foundry.applications.instances.get(id);
   if ( existing ) return existing.bringToFront();
   return new CharacterBuilder(options).render({ force: true });
 }
 
-/** Open the builder for a new character. */
+/**
+ * Open the builder for a new character.
+ * @param {object} root0
+ * @param {string|undefined} root0.name
+ * @returns {unknown}
+ */
 function open({ name } = {}) {
   if ( game.system.id !== "demonlord" ) return warn("AVTTSB.WrongSystem");
   if ( !game.user.isGM && !game.user.can("ACTOR_CREATE") && !game.settings.get(MODULE_ID, "playersMayCreate") ) {
@@ -28,16 +38,27 @@ function open({ name } = {}) {
   return show(`${MODULE_ID}-builder`, { name });
 }
 
-/** Can the current user level this actor up with the builder? */
+/**
+ * Can the current user level this actor up with the builder?
+ * @param {Actor|null} actor
+ * @returns {boolean}
+ */
 const canLevelUp = actor => (game.system.id === "demonlord") && (actor?.type === "character") && actor.isOwner
   && ((Number(actor.system.level) || 0) < LIMITS.level);
 
-/** Open the builder to level a character up. */
+/**
+ * Open the builder to level a character up.
+ * @param {Actor|null} actor
+ * @returns {unknown}
+ */
 function openLevelUp(actor) {
   if ( !canLevelUp(actor) ) return warn("AVTTSB.LevelUp.Error.NotOwner");
   return show(CharacterBuilder.levelUpId(actor), { actor });
 }
 
+/**
+ * Register the builder's world settings.
+ */
 function registerSettings() {
   const reRender = () => foundry.applications.instances.get(`${MODULE_ID}-builder`)?.render();
   game.settings.register(MODULE_ID, "startLevel", {
@@ -69,7 +90,11 @@ function registerSettings() {
   });
 }
 
-/** A launch button in the Actors directory header (as Hero Mancer does). */
+/**
+ * A launch button in the Actors directory header (as Hero Mancer does).
+ * @param {ApplicationV2} app
+ * @param {HTMLElement|object} element
+ */
 function injectLaunchButton(app, element) {
   if ( game.system.id !== "demonlord" ) return;
   const root = element instanceof HTMLElement ? element : element?.[0];

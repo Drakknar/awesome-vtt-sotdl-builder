@@ -28,11 +28,17 @@ const str = (value, max = LIMITS.text) => (typeof value === "string" ? value.sli
 const uuid = value => ((typeof value === "string") && UUID_RE.test(value) ? value : null);
 const attr = value => (ATTRS.includes(value) ? value : null);
 const count = (value, max = LIMITS.coins) => Math.clamp(Math.floor(Number(value) || 0), 0, max);
-const list = (value, map, max = LIMITS.list) => (Array.isArray(value) ? value.slice(0, max).map(map).filter(v => v != null) : []);
+const list = (value, map, max = LIMITS.list) =>
+  (Array.isArray(value) ? value.slice(0, max).map(map).filter(v => v != null) : []);
 
 /** The same limits for the builder's form fields. */
 export { str as cleanText, count as cleanCount };
 
+/**
+ * A copy of a level-choices map with only valid level keys, attributes and uuids.
+ * @param {unknown} choices
+ * @returns {object}
+ */
 function sanitizeChoices(choices) {
   const out = {};
   if ( !choices || (typeof choices !== "object") ) return out;
@@ -43,7 +49,11 @@ function sanitizeChoices(choices) {
   return out;
 }
 
-/** A copy of a plan with only known fields, bounded sizes and valid values (as a new-character plan). */
+/**
+ * A copy of a plan with only known fields, bounded sizes and valid values (as a new-character plan).
+ * @param {unknown} raw
+ * @returns {object}
+ */
 export function sanitizePlan(raw) {
   const p = raw ?? {};
   const a = p.ancestry ?? {};
@@ -81,7 +91,8 @@ export function sanitizePlan(raw) {
       wealthRoll: p.equipment?.wealthRoll == null ? null : count(p.equipment.wealthRoll, 18),
       items: list(p.equipment?.items, e => {
         const id = uuid(e?.uuid);
-        return id ? { uuid: id, name: str(e?.name, LIMITS.name), img: str(e?.img, 500), qty: Math.max(1, count(e?.qty, 999)) } : null;
+        if ( !id ) return null;
+        return { uuid: id, name: str(e?.name, LIMITS.name), img: str(e?.img, 500), qty: Math.max(1, count(e?.qty, 999)) };
       }, LIMITS.items),
       coins: Object.fromEntries(COINS.map(c => [c, count(p.equipment?.coins?.[c])]))
     },
@@ -102,6 +113,10 @@ export function sanitizePlan(raw) {
 /**
  * Load an Item the user may use: it must exist, be one of the allowed types (and `type` if given), and be visible to
  * `user` (an observable compendium, or a world item the user can at least see).
+ * @param {string|null} id
+ * @param {User} user
+ * @param {string|string[]|undefined} type
+ * @returns {Promise<Item|null>}
  */
 async function loadItem(id, user, type) {
   if ( !id ) return null;
@@ -114,7 +129,11 @@ async function loadItem(id, user, type) {
   return visible ? doc : null;
 }
 
-/** Item data ready to embed: a copy of the source without id, folder, sort or ownership. */
+/**
+ * Item data ready to embed: a copy of the source without id, folder, sort or ownership.
+ * @param {Item} doc
+ * @returns {object}
+ */
 function itemData(doc) {
   const data = doc.toObject();
   delete data._id;
@@ -128,13 +147,19 @@ function itemData(doc) {
 /**
  * The plan's attribute and pick choices written into the levels the plan gains of an ancestry's or path's data (the
  * system reads them there); levels the character already has are left as they are. Returns the levels written.
+ * @param {object} data
+ * @param {object} plan
+ * @param {object} choices
+ * @returns {object[]}
  */
 function applyLevelChoices(data, plan, choices) {
   const levels = newLevels(data, plan);
   for ( const level of levels ) {
     const choice = choices[levelKey(level)] ?? {};
     if ( attrChoiceCount(level) ) {
-      for ( const a of ATTRS ) if ( level.attributes?.[a] ) level.attributes[a].selected = (choice.attrs ?? []).includes(a);
+      for ( const a of ATTRS ) {
+        if ( level.attributes?.[a] ) level.attributes[a].selected = (choice.attrs ?? []).includes(a);
+      }
     }
     for ( const pick of level.talentspick ?? [] ) pick.selected = !!choice.pick && (pickId(pick) === choice.pick);
     // Spells a level lists ("you learn the spellbound weapon spell") come with it.
@@ -143,7 +168,12 @@ function applyLevelChoices(data, plan, choices) {
   return levels;
 }
 
-/** The embedded ancestry: starting scores, size, and the level-4 talent when chosen. */
+/**
+ * The embedded ancestry: starting scores, size, and the level-4 talent when chosen.
+ * @param {Item} doc
+ * @param {object} plan
+ * @returns {object}
+ */
 function ancestryItem(doc, plan) {
   const data = itemData(doc);
   const base = ancestryBase(data);
@@ -158,7 +188,11 @@ function ancestryItem(doc, plan) {
   return data;
 }
 
-/** The ancestry's level-4 talent selected when the plan gains level 4 and chose the talent. */
+/**
+ * The ancestry's level-4 talent selected when the plan gains level 4 and chose the talent.
+ * @param {object} data
+ * @param {object} plan
+ */
 function applyL4Choice(data, plan) {
   if ( !gainsL4(plan, data) ) return;
   ancestryL4(data).talentspick.forEach((pick, i) => pick.selected = (plan.ancestry.l4 === "talent") && (i === 0));
@@ -167,6 +201,10 @@ function applyL4Choice(data, plan) {
 /**
  * The plan's spells, professions, the given languages and equipment as item data, loaded in parallel; items keep the
  * plan's order.
+ * @param {object} plan
+ * @param {User} user
+ * @param {object[]} languages
+ * @returns {Promise<object[]>}
  */
 async function plainItems(plan, user, languages) {
   const spells = Promise.all(allSpells(plan).map(async id => {
@@ -199,6 +237,11 @@ async function plainItems(plan, user, languages) {
 /**
  * Professions, languages, traditions and spells may not exceed what the gained levels allow (checked again here, so
  * the GM's side enforces it too): throws with a localized message.
+ * @param {object} plan
+ * @param {object} docs
+ * @param {object} root0
+ * @param {number} root0.power
+ * @param {string[]} root0.known
  */
 async function checkAllowances(plan, docs, { power, known = [] }) {
   if ( professionAllowance(plan, docs).over ) throw new Error(loc("AVTTSB.Create.Error.TooMany"));
@@ -208,7 +251,13 @@ async function checkAllowances(plan, docs, { power, known = [] }) {
   if ( magic.over || plan.traditions.some(t => !t.spell) ) throw new Error(loc("AVTTSB.Create.Error.TooMuchMagic"));
 }
 
-/** A path the plan names for a tier, loaded for `user` and with the plan's choices applied. Throws when missing. */
+/**
+ * A path the plan names for a tier, loaded for `user` and with the plan's choices applied. Throws when missing.
+ * @param {object} plan
+ * @param {object} tier
+ * @param {User} user
+ * @returns {Promise<{doc: Item, data: object}>}
+ */
 async function pathItem(plan, tier, user) {
   const doc = await loadItem(plan.paths[tier.id].uuid, user, "path");
   if ( !doc ) throw new Error(game.i18n.format("AVTTSB.Create.Error.Path", { tier: loc(`AVTTSB.Tier.${tier.id}`) }));
@@ -217,12 +266,19 @@ async function pathItem(plan, tier, user) {
   return { doc, data };
 }
 
-/** A plain-text paragraph list for the biography. */
+/**
+ * A plain-text paragraph list for the biography.
+ * @param {string[]} lines
+ * @returns {string}
+ */
 const paragraphs = lines => lines.filter(Boolean).map(l => `<p>${foundry.utils.escapeHTML(l)}</p>`).join("");
 
 /**
  * The actor data and the items to embed for a plan, built with what `user` may use. Throws with a localized message
  * when a required document is missing.
+ * @param {unknown} raw
+ * @param {User} user
+ * @returns {Promise<{actor: object, items: object[]}>}
  */
 export async function buildCharacter(raw, user = game.user) {
   const plan = sanitizePlan(raw);
@@ -265,10 +321,16 @@ export async function buildCharacter(raw, user = game.user) {
   return { actor, items };
 }
 
-/** Create the character for `user` (the current user unless the GM creates it for someone). */
+/**
+ * Create the character for `user` (the current user unless the GM creates it for someone).
+ * @param {unknown} raw
+ * @param {User} user
+ * @returns {Promise<Actor>}
+ */
 async function createFor(raw, user) {
   const { actor: actorData, items } = await buildCharacter(raw, user);
-  actorData.ownership = { default: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE, [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
+  const { NONE, OWNER } = CONST.DOCUMENT_OWNERSHIP_LEVELS;
+  actorData.ownership = { default: NONE, [user.id]: OWNER };
   const actor = await Actor.implementation.create(actorData);
   if ( !actor ) throw new Error(loc("AVTTSB.Create.Error.Failed"));
   // One call, so the system's create handler adds ancestry and path talents and effects in order.
@@ -287,6 +349,9 @@ async function createFor(raw, user) {
  * Item data for what one gained level of an embedded ancestry or path grants, as the system's own level change does
  * (`createActorNestedItems`): its talents and languages, and its selected talent picks and spells, flagged with their
  * parent and level so the system can remove them if the level goes down again.
+ * @param {object} level
+ * @param {string} parentId
+ * @returns {Promise<object[]>}
  */
 function nestedItems(level, parentId) {
   const entries = [...(level.talents ?? []), ...(level.languages ?? []),
@@ -307,6 +372,9 @@ function nestedItems(level, parentId) {
  * choices are written into the ancestry and paths the character has, their talents added, then the level raised; a
  * new path is embedded after that, so the system adds its levels up to the new level itself. Spells, professions and
  * extra languages are added as plain items.
+ * @param {Actor} actor
+ * @param {unknown} raw
+ * @returns {Promise<Actor>}
  */
 export async function levelUpCharacter(actor, raw) {
   if ( !actor?.isOwner || (actor.type !== "character") ) throw new Error(loc("AVTTSB.LevelUp.Error.NotOwner"));
@@ -360,6 +428,7 @@ const TIMEOUT = 120_000;
 /**
  * Create the character from a plan. Players without the "Create new actors" permission ask the active GM, whose
  * client checks the plan and creates it with the player as owner.
+ * @param {object} plan
  * @returns {Promise<Actor>}
  */
 export async function createCharacter(plan) {
@@ -400,7 +469,7 @@ export function registerSocket() {
       const actor = await createFor(data.plan, user);
       reply({ actorId: actor.id });
       ui.notifications.info(game.i18n.format("AVTTSB.Create.CreatedFor", { name: actor.name, user: user.name }));
-    } catch(err) {
+    } catch ( err ) {
       console.error(`${MODULE_ID} | Creating a character for ${user.name} failed`, err);
       reply({ error: err.message });
     }
