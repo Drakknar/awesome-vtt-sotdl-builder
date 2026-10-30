@@ -30,6 +30,7 @@ export function clearContent() {
  * Every offered item the user can see: one name-sorted list per type (`index.ancestry`, `index.path`, …) of
  * `{ uuid, name, img, type, pathType, tradition, rank, source, search }`, plus `index.equipment` (all equipment
  * types, sorted) and `index.byUuid` (a Map).
+ * @returns {Promise<object>}
  */
 export function contentIndex() {
   indexPromise ??= buildIndex().catch(err => {
@@ -39,6 +40,10 @@ export function contentIndex() {
   return indexPromise;
 }
 
+/**
+ * Read every visible Item compendium (creature gear left out) and the world's items into the index (see contentIndex).
+ * @returns {Promise<object>}
+ */
 async function buildIndex() {
   // Creature-only weapons aren't starting gear.
   const packs = game.packs.filter(p => (p.documentName === "Item") && p.visible && !/creature/i.test(p.collection));
@@ -67,14 +72,23 @@ async function buildIndex() {
   return index;
 }
 
-/** A document by uuid, loaded once (ancestries, paths, tables). */
+/**
+ * A document by uuid, loaded once (ancestries, paths, tables).
+ * @param {string|null|undefined} uuid
+ * @returns {Promise<Document|null>}
+ */
 export function getDoc(uuid) {
   if ( !uuid ) return Promise.resolve(null);
   if ( !docs.has(uuid) ) docs.set(uuid, fromUuid(uuid).catch(() => null));
   return docs.get(uuid);
 }
 
-/** The first visible entry of a type whose name matches (case-insensitive), preferring exact matches. */
+/**
+ * The first visible entry of a type whose name matches (case-insensitive), preferring exact matches.
+ * @param {string} type
+ * @param {string} name
+ * @returns {Promise<object|null>}
+ */
 export async function findByName(type, name) {
   const wanted = String(name ?? "").trim().toLowerCase();
   if ( !wanted ) return null;
@@ -90,12 +104,17 @@ export async function findByName(type, name) {
 /* -------------------------------------------- */
 
 /**
- * The book's markup in one pattern: `@UUID[uuid]{label}` links (label optional), `{@type name|system}[label]`
- * references (not enriched by the system; matched to items by name) and inline rolls `[[/r formula]]`.
+ * The book's markup in one pattern: `@UUID[uuid]{label}` links (label optional), references written as
+ * `@type name|system` in braces plus `[label]` (not enriched by the system; matched to items by name) and inline
+ * rolls `[[/r formula]]`.
  */
 const MARKUP_RE = /@UUID\[([^\]]+)\](?:\{([^}]*)\})?|\{@(\w+) ([^|}]+)\|[^}]*\}(?:\[([^\]]*)\])?|\[\[\/r ([^\]]+)\]\]/g;
 
-/** The links and references in a text: `[{ uuid, label }]` and `[{ refType, name, label }]`. */
+/**
+ * The links and references in a text: `[{ uuid, label }]` and `[{ refType, name, label }]`.
+ * @param {string|undefined} text
+ * @returns {object[]}
+ */
 export function linkedRefs(text) {
   const refs = [];
   for ( const m of String(text ?? "").matchAll(MARKUP_RE) ) {
@@ -105,7 +124,11 @@ export function linkedRefs(text) {
   return refs;
 }
 
-/** A book text with its markup replaced by labels / names (links without a label vanish), without HTML parsing. */
+/**
+ * A book text with its markup replaced by labels / names (links without a label vanish), without HTML parsing.
+ * @param {string|undefined} text
+ * @returns {string}
+ */
 export function stripMarkup(text) {
   return String(text ?? "").replace(MARKUP_RE, (_, uuid, label, refType, name, refLabel, formula) => {
     if ( uuid ) return label ?? "";
@@ -114,12 +137,20 @@ export function stripMarkup(text) {
   });
 }
 
-/** Language names an ancestry or path text grants (`{@language Name|…}` references). */
+/**
+ * Language names an ancestry or path text grants (references written as `@language Name|…` in braces).
+ * @param {string|undefined} text
+ * @returns {string[]}
+ */
 export function languageNames(text) {
   return linkedRefs(text).filter(r => r.refType === "language").map(r => r.name);
 }
 
-/** Plain text from an HTML string. */
+/**
+ * Plain text from an HTML string.
+ * @param {string} html
+ * @returns {string}
+ */
 function plainText(html) {
   const div = document.createElement("div");
   div.innerHTML = html;
@@ -129,6 +160,8 @@ function plainText(html) {
 /**
  * Readable plain text of a book text: links become their label (an unlabeled link the linked document's name),
  * references their label, inline rolls their formula. Used for every book text the builder shows; cached per text.
+ * @param {string|undefined} text
+ * @returns {Promise<string>}
  */
 export function displayText(text) {
   const source = String(text ?? "");
@@ -149,6 +182,8 @@ export function displayText(text) {
  * The name of a linked document without loading it: compendium entries from the pack's index (only packs the user
  * can see), world documents from their collection. Embedded documents (such as the book's journal pages, whose
  * parent is one ~20 MB entry) aren't resolved. Empty when unknown.
+ * @param {string} uuid
+ * @returns {Promise<string>}
  */
 function linkName(uuid) {
   if ( !linkNames.has(uuid) ) linkNames.set(uuid, (async () => {
@@ -168,14 +203,22 @@ function linkName(uuid) {
 /*  Roll tables                                 */
 /* -------------------------------------------- */
 
-/** RollTables linked from a description (an ancestry's Age, Build, Background, … tables): `[{ uuid, name }]`. */
+/**
+ * RollTables linked from a description (an ancestry's Age, Build, Background, … tables): `[{ uuid, name }]`.
+ * @param {string} html
+ * @returns {Promise<{uuid: string, name: string}[]>}
+ */
 export async function linkedTables(html) {
   const uuids = linkedRefs(html).map(r => r.uuid).filter(u => u?.includes("RollTable"));
   const found = await Promise.all(uuids.map(getDoc));
   return found.filter(t => t instanceof RollTable).map(t => ({ uuid: t.uuid, name: t.name }));
 }
 
-/** A world or compendium RollTable by name (first match), looked up once per name. */
+/**
+ * A world or compendium RollTable by name (first match), looked up once per name.
+ * @param {string} name
+ * @returns {Promise<RollTable|null>}
+ */
 export function findTable(name) {
   if ( !tables.has(name) ) tables.set(name, (async () => {
     const local = game.tables.getName(name);
@@ -190,7 +233,11 @@ export function findTable(name) {
   return tables.get(name);
 }
 
-/** Roll a table without posting to chat; nested tables are followed. Returns `{ total, text }`. */
+/**
+ * Roll a table without posting to chat; nested tables are followed. Returns `{ total, text }`.
+ * @param {RollTable} table
+ * @returns {Promise<{total: number|null, text: string}>}
+ */
 export async function rollTable(table) {
   const { roll, results } = await table.roll();
   const parts = await Promise.all(results.map(r => displayText(r.description || r.name)));
@@ -201,6 +248,8 @@ export async function rollTable(table) {
  * A table's entries for picking by hand: `[{ label, options: [{ range, text }] }]`, sorted by range. Results that are
  * other RollTables (the Interesting Things table of tables) become one group each, one level deep; a plain table is
  * one group without label. Cached per table (with the documents).
+ * @param {RollTable} table
+ * @returns {Promise<object[]>}
  */
 export function tableEntries(table) {
   const key = `entries:${table.uuid}`;
@@ -208,6 +257,12 @@ export function tableEntries(table) {
   return texts.get(key);
 }
 
+/**
+ * A table's results as groups of range / text options; at depth 0, results that are tables become groups of their own.
+ * @param {RollTable} table
+ * @param {number} depth
+ * @returns {Promise<object[]>}
+ */
 async function readEntries(table, depth) {
   const range = r => (!r.range || (r.range[0] === r.range[1]) ? String(r.range?.[0] ?? "") : `${r.range[0]}–${r.range[1]}`);
   const sorted = [...table.results].sort((a, b) => (a.range?.[0] ?? 0) - (b.range?.[0] ?? 0));
@@ -250,7 +305,10 @@ export async function rollProfession() {
 /*  Wealth and starting equipment               */
 /* -------------------------------------------- */
 
-/** Roll the Wealth table (3d6). Returns `{ total, lifestyle }` or null when the table isn't available. */
+/**
+ * Roll the Wealth table (3d6). Returns `{ total, lifestyle }` or null when the table isn't available.
+ * @returns {Promise<{total: number|null, lifestyle: string|null}|null>}
+ */
 export async function rollWealth() {
   const table = await findTable("Wealth");
   if ( !table ) return null;
@@ -262,6 +320,7 @@ export async function rollWealth() {
  * The starting equipment of each lifestyle, read from the book page set in the "equipmentPage" setting:
  * `{ [lifestyle]: { text, items: [{ uuid, name, img, label }], coins: { formula, coin } | null } }`. Loaded only on
  * request (the core book is one large journal; only the parsed kits are kept). Null when the page isn't available.
+ * @returns {Promise<object|null>}
  */
 export async function loadEquipmentKits() {
   if ( equipmentKits ) return equipmentKits;
@@ -287,7 +346,11 @@ export async function loadEquipmentKits() {
   return equipmentKits;
 }
 
-/** A kit's linked items as visible equipment entries (unresolved ones are left out; the kit text shows them). */
+/**
+ * A kit's linked items as visible equipment entries (unresolved ones are left out; the kit text shows them).
+ * @param {object[]} refs
+ * @returns {Promise<object[]>}
+ */
 async function kitItems(refs) {
   const index = await contentIndex();
   const types = { weapon: "weapon", armor: "armor", ammunition: "ammo", item: "item" };

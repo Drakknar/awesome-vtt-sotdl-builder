@@ -28,10 +28,14 @@ const TEMPLATES = `modules/${MODULE_ID}/templates`;
 /**
  * Plan fields a form control may set by its `name`: the value's kind, its length limit, and what to re-render
  * (`true` everything, a list of parts, or nothing; pickers with `data-picker` always re-render).
+ * @param {string} kind
+ * @param {boolean|string[]} render
+ * @param {number} max
+ * @returns {{kind: string, render: boolean|string[], max: number}}
  */
 const field = (kind, render = false, max = LIMITS.text) => ({ kind, render, max });
 const FIELDS = {
-  "name": field("text", ["sidebar", "footer"], LIMITS.name),
+  name: field("text", ["sidebar", "footer"], LIMITS.name),
   "ancestry.size": field("text", true, 8),
   "ancestry.bonus": field("attr", true),
   "ancestry.adjustUp": field("attr", true),
@@ -47,8 +51,10 @@ const FIELDS = {
 };
 
 /** Lists the remove buttons may change (`data-list`). */
-const LISTS = { professions: plan => plan.professions, languages: plan => plan.languages, items: plan => plan.equipment.items,
-  spells: plan => plan.spells };
+const LISTS = {
+  professions: plan => plan.professions, languages: plan => plan.languages, items: plan => plan.equipment.items,
+  spells: plan => plan.spells
+};
 
 export default class CharacterBuilder extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor({ actor = null, name, ...options } = {}) {
@@ -117,17 +123,28 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     "avtsb-guidance": `${TEMPLATES}/guidance.hbs`
   };
 
-  /** The starting level from the world setting. */
+  /**
+   * The starting level from the world setting.
+   * @returns {number}
+   */
   static defaultLevel() {
     return Math.clamp(Number(game.settings.get(MODULE_ID, "startLevel")) || 0, 0, LIMITS.level);
   }
 
-  /** The level-up window's id for an actor (one window per character). */
+  /**
+   * The level-up window's id for an actor (one window per character).
+   * @param {Actor} actor
+   * @returns {string}
+   */
   static levelUpId(actor) {
     return `${MODULE_ID}-levelup-${actor.id}`;
   }
 
-  /** A level-up plan for an actor: one level up, with the ancestry and paths it has. */
+  /**
+   * A level-up plan for an actor: one level up, with the ancestry and paths it has.
+   * @param {Actor} actor
+   * @returns {object}
+   */
   static levelUpPlan(actor) {
     const from = Number(actor.system.level) || 0;
     const plan = newPlan(Math.min(from + 1, LIMITS.level), from);
@@ -139,7 +156,10 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     return plan;
   }
 
-  /** Can the current user change the level in the window? */
+  /**
+   * Can the current user change the level in the window?
+   * @returns {boolean}
+   */
   get canSetLevel() {
     return game.user.isGM || game.settings.get(MODULE_ID, "playersChooseLevel");
   }
@@ -165,26 +185,38 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     if ( !this.actor ) game.user.setFlag(MODULE_ID, "draft", { plan: this.plan, step: this.step }).catch(() => null);
   }, 800);
 
-  /** The plan changed: save the draft and re-render (`true` all, a list of parts, or nothing). */
+  /**
+   * The plan changed: save the draft and re-render (`true` all, a list of parts, or nothing).
+   * @param {object} root0
+   * @param {boolean|string[]} root0.render
+   */
   async #changed({ render = true } = {}) {
     this.#saveDraft();
     if ( render ) await this.render(render === true ? {} : { parts: render });
   }
 
-  /** An action that changes the plan: saved and re-rendered afterwards, unless it returns `false`. */
+  /**
+   * An action that changes the plan: saved and re-rendered afterwards, unless it returns `false`.
+   * @param {(event: Event, target: HTMLElement) => unknown} fn
+   * @returns {(event: Event, target: HTMLElement) => Promise<void>}
+   */
   static #edit(fn) {
     return async function(event, target) {
       if ( (await fn.call(this, event, target)) !== false ) await this.#changed();
     };
   }
 
-  /** Run an async task once at a time, reporting errors. Returns its result, or `false` if it didn't run or failed. */
+  /**
+   * Run an async task once at a time, reporting errors. Returns its result, or `false` if it didn't run or failed.
+   * @param {() => Promise<unknown>} fn
+   * @returns {Promise<unknown>}
+   */
   async #once(fn) {
     if ( this.running ) return false;
     this.running = true;
     try {
       return await fn();
-    } catch(err) {
+    } catch ( err ) {
       console.error(`${MODULE_ID} |`, err);
       ui.notifications.error(err.message);
       return false;
@@ -204,7 +236,8 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     this.magic = magicAllowance(this.plan, this.docs, { power: stats.power, known: this.known,
       spellInfo: uuid => this.index.byUuid.get(uuid) });
     const missing = this.missing = remaining(this.plan, this.docs, allowance, this.magic);
-    const steps = STEPS.filter(s => !(this.actor && s.createOnly) && (!s.when || s.when(this.plan, { stats, magic: this.magic })));
+    const magic = this.magic;
+    const steps = STEPS.filter(s => !(this.actor && s.createOnly) && (!s.when || s.when(this.plan, { stats, magic })));
     this.stepIds = steps.map(s => s.id);
     if ( !this.stepIds.includes(this.step) ) this.step = this.stepIds[0];
     const position = this.stepIds.indexOf(this.step);
@@ -239,7 +272,11 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     return Object.assign(context, await this.#stepContext(context));
   }
 
-  /** The current step's own context. */
+  /**
+   * The current step's own context.
+   * @param {object} context
+   * @returns {Promise<object>|object}
+   */
   #stepContext(context) {
     switch ( this.step ) {
       case "ancestry": return this.#ancestryContext();
@@ -318,7 +355,13 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     };
   }
 
-  /** One gained level of a path for the Paths step. */
+  /**
+   * One gained level of a path for the Paths step.
+   * @param {object} tier
+   * @param {object} level
+   * @param {object} choices
+   * @returns {Promise<object>}
+   */
   async #levelContext(tier, level, choices) {
     const key = levelKey(level);
     const choice = choices[key] ?? {};
@@ -395,7 +438,8 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     const own = ownedNames(this.actor, "spell");
     const rankZero = name => Object.fromEntries(this.index.spell.filter(s => (s.tradition === name) && (s.rank === 0)
       && !own.has(s.name.toLowerCase())).map(s => [s.uuid, s.name]));
-    const addable = [...new Set(this.index.spell.map(s => s.tradition).filter(Boolean))].sort().filter(magic.canAddTradition);
+    const traditions = new Set(this.index.spell.map(s => s.tradition).filter(Boolean));
+    const addable = [...traditions].sort().filter(magic.canAddTradition);
     return {
       power,
       castings: (CASTINGS[Math.clamp(power, 0, 10)]).map((n, rank) => ({ rank, n })),
@@ -430,7 +474,8 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
       professionCount: fmt("AVTTSB.Count", { n: allowance.professions, max: allowance.maxProfessions }),
       languageCount: fmt("AVTTSB.Count", { n: allowance.languages, max: allowance.maxLanguages }),
       allowanceText: fmt("AVTTSB.Professions.Allowance", {
-        professions: allowance.professions, maxProfessions: allowance.maxProfessions, used: allowance.used, budget: allowance.budget
+        professions: allowance.professions, maxProfessions: allowance.maxProfessions, used: allowance.used,
+        budget: allowance.budget
       }),
       guidance: await displayGuidance(guidance(this.plan, this.docs, "languagesText")),
       professions: this.plan.professions.map((p, index) => ({ ...p, index })),
@@ -438,7 +483,8 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
       canRoll: !!(await findTable("Profession Types")),
       languages: [
         ...auto.map(name => ({ name, auto: true, read: !!flagsOf(name)?.read, write: !!flagsOf(name)?.write })),
-        ...this.plan.languages.map((l, index) => ({ ...l, index })).filter(l => !l.auto && !auto.some(a => lower(a) === lower(l.name)))
+        ...this.plan.languages.map((l, index) => ({ ...l, index }))
+          .filter(l => !l.auto && !auto.some(a => lower(a) === lower(l.name)))
       ],
       languageOptions: this.index.language.filter(l => !taken.has(lower(l.name)))
     };
@@ -527,7 +573,11 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     }
   }
 
-  /** A form control changed: a filter, a language's read / write mark, a quantity, a background trait or a plan field. */
+  /**
+   * A form control changed: a filter, a language's read / write mark, a quantity, a background trait or a plan field.
+   * @param {Event} event
+   * @returns {Promise<unknown>}
+   */
   async #onChangeField(event) {
     const el = event.target;
     const data = el.dataset;
@@ -586,7 +636,11 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     entry[flag] = value;
   }
 
-  /** A background table's result, also written into the character field it belongs to (`TRAIT_FIELDS`). */
+  /**
+   * A background table's result, also written into the character field it belongs to (`TRAIT_FIELDS`).
+   * @param {string} label
+   * @param {string} text
+   */
   #setTrait(label, text) {
     const entry = this.plan.bio.traits.find(t => t.label === label);
     if ( entry ) entry.text = text;
@@ -594,7 +648,11 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     if ( TRAIT_FIELDS[label] ) foundry.utils.setProperty(this.plan, TRAIT_FIELDS[label], text);
   }
 
-  /** Can another profession (or extra language) be added? Warns when not. */
+  /**
+   * Can another profession (or extra language) be added? Warns when not.
+   * @param {string} kind
+   * @returns {boolean}
+   */
   #mayAdd(kind) {
     const ok = kind === "language" ? this.allowance.canAddLanguage : this.allowance.canAddProfession;
     if ( !ok ) ui.notifications.warn(loc(kind === "language" ? "AVTTSB.Languages.Full" : "AVTTSB.Professions.Full"));
@@ -611,9 +669,14 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
   }
 
   static #onNext() { return this.#move(1); }
+
   static #onBack() { return this.#move(-1); }
 
-  /** Go to the next or previous step shown at the last render. */
+  /**
+   * Go to the next or previous step shown at the last render.
+   * @param {number} by
+   * @returns {Promise<void>}
+   */
   #move(by) {
     const i = this.stepIds.indexOf(this.step);
     this.step = this.stepIds[Math.clamp(i + by, 0, this.stepIds.length - 1)];
@@ -632,11 +695,17 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     await this.render();
   }
 
-  /** Create the character, or apply the level up. */
+  /**
+   * Create the character, or apply the level up.
+   * @param {Event} event
+   * @param {HTMLButtonElement} target
+   * @returns {Promise<unknown>}
+   */
   static async #onSubmit(event, target) {
     if ( this.missing.review ) return ui.notifications.warn(loc("AVTTSB.Create.Incomplete"));
     target.disabled = true;
-    const actor = await this.#once(() => (this.actor ? levelUpCharacter(this.actor, this.plan) : createCharacter(this.plan)));
+    const apply = () => (this.actor ? levelUpCharacter(this.actor, this.plan) : createCharacter(this.plan));
+    const actor = await this.#once(apply);
     if ( !actor ) {
       target.disabled = false;
       return;
@@ -707,7 +776,10 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     entry.pick = entry.pick === pick ? null : pick;
   }
 
-  /** Discover a tradition (its free rank 0 spell is chosen on its row). */
+  /**
+   * Discover a tradition (its free rank 0 spell is chosen on its row).
+   * @returns {boolean|undefined}
+   */
   static #onAddTradition() {
     const name = this.element.querySelector("select[name=addTradition]")?.value;
     if ( !name ) return false;
@@ -718,7 +790,12 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     this.plan.traditions.push({ name, spell: null });
   }
 
-  /** Forget a discovered tradition, with the spells learned from it. */
+  /**
+   * Forget a discovered tradition, with the spells learned from it.
+   * @param {Event} event
+   * @param {HTMLElement} target
+   * @returns {boolean|undefined}
+   */
   static #onRemoveTradition(event, target) {
     const [removed] = this.plan.traditions.splice(Number(target.dataset.index), 1);
     if ( !removed ) return false;
@@ -806,14 +883,20 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
     else this.plan.equipment.items.push({ uuid: entry.uuid, name: entry.name, img: entry.img, qty: 1 });
   }
 
-  /** Roll the kit's purse ("a pouch containing 1d6 bits") and add it to the coins. */
+  /**
+   * Roll the kit's purse ("a pouch containing 1d6 bits") and add it to the coins.
+   * @returns {Promise<boolean|undefined>}
+   */
   static async #onRollCoins() {
     const coins = this.kits?.[this.plan.equipment.lifestyle]?.coins;
     if ( !coins ) return false;
     await this.#addCoins(coins.formula, coins.coin);
   }
 
-  /** "Equipment at Higher Levels": 2d6 ss per level. */
+  /**
+   * "Equipment at Higher Levels": 2d6 ss per level.
+   * @returns {Promise<boolean|undefined>}
+   */
   static async #onRollLevelCoins() {
     if ( this.plan.level < 1 ) return false;
     await this.#addCoins(`${this.plan.level * 2}d6`, "ss");
@@ -834,10 +917,15 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
 /** Castings per spell rank at a Power score (core book "Castings by Spell Rank"). */
 const CASTINGS = [
   [1], [2, 1], [3, 2, 1], [4, 2, 1, 1], [5, 2, 2, 1, 1], [6, 3, 2, 2, 1, 1], [7, 3, 2, 2, 2, 1, 1],
-  [8, 3, 2, 2, 2, 1, 1, 1], [9, 3, 3, 2, 2, 2, 1, 1, 1], [10, 3, 3, 3, 2, 2, 1, 1, 1, 1], [11, 3, 3, 3, 3, 2, 1, 1, 1, 1, 1]
+  [8, 3, 2, 2, 2, 1, 1, 1], [9, 3, 3, 2, 2, 2, 1, 1, 1], [10, 3, 3, 3, 2, 2, 1, 1, 1, 1],
+  [11, 3, 3, 3, 3, 2, 1, 1, 1, 1, 1]
 ];
 
-/** A table's entries as `selectOptions` choices: `{ options: [{ value, label, group }], groups }`. */
+/**
+ * A table's entries as `selectOptions` choices: `{ options: [{ value, label, group }], groups }`.
+ * @param {object[]} groups
+ * @returns {{options: object[], groups: string[]}}
+ */
 function entryChoices(groups) {
   return {
     options: groups.flatMap(g => g.options.map(o => ({ value: o.text, label: `${o.range}: ${o.text}`, group: g.label || undefined }))),
@@ -845,23 +933,40 @@ function entryChoices(groups) {
   };
 }
 
-/** Guidance entries with their texts made readable (links resolved to names). */
+/**
+ * Guidance entries with their texts made readable (links resolved to names).
+ * @param {object[]} entries
+ * @returns {Promise<object[]>}
+ */
 function displayGuidance(entries) {
   return Promise.all(entries.map(async g => ({ ...g, text: await displayText(g.text) })));
 }
 
-/** "Strength +1, Health +5, …" from `[labelKey, value]` pairs (zeros left out). */
+/**
+ * "Strength +1, Health +5, …" from `[labelKey, value]` pairs (zeros left out).
+ * @param {Array<[string, number]>} pairs
+ * @returns {string}
+ */
 function bonusText(pairs) {
   return pairs.filter(([, n]) => Number(n)).map(([key, n]) => `${loc(key)} ${signed(n)}`).join(", ");
 }
 
-/** A level up's gains as text. */
+/**
+ * A level up's gains as text.
+ * @param {object} gains
+ * @returns {string}
+ */
 function gainsText(gains) {
   return bonusText([...ATTRS.map(a => [`AVTTSB.Attr.${a}`, gains.scores[a]]),
     ...CHARACTERISTICS.map(k => [`AVTTSB.Char.${k}`, gains[k]])]);
 }
 
-/** "Human Age" → "Age" (the ancestry's tables are named after it). */
+/**
+ * "Human Age" → "Age" (the ancestry's tables are named after it).
+ * @param {string} tableName
+ * @param {string|undefined} ancestryName
+ * @returns {string}
+ */
 function traitLabel(tableName, ancestryName) {
   if ( ancestryName && tableName.startsWith(`${ancestryName} `) ) return tableName.slice(ancestryName.length + 1);
   return tableName;
