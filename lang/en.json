@@ -257,7 +257,8 @@
       },
       "Error": {
         "NotOwner": "You can only level up a Shadow of the Demon Lord character you own, below level 10.",
-        "Level": "The new level must be higher than the current one."
+        "Level": "The new level must be higher than the current one.",
+        "Transformed": "This is a transformed form, which is temporary: its level would be lost when it reverts. Level up the original character instead."
       }
     }
   }
