@@ -132,12 +132,14 @@ export default class CharacterBuilder extends HandlebarsApplicationMixin(Applica
   }
 
   /**
-   * The level-up window's id for an actor (one window per character).
+   * The level-up window's id for an actor (one window per actor). Built from the uuid, not the id: unlinked tokens of
+   * one base actor share its id, but each synthetic actor has its own uuid (`Scene.<id>.Token.<id>.Actor.<id>`).
+   * Characters an HTML id or CSS selector can't take as they are (the uuid's dots) become "-".
    * @param {Actor} actor
    * @returns {string}
    */
   static levelUpId(actor) {
-    return `${MODULE_ID}-levelup-${actor.id}`;
+    return `${MODULE_ID}-levelup-${actor.uuid.replace(/[^\w-]/g, "-")}`;
   }
 
   /**
