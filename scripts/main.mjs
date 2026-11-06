@@ -54,6 +54,7 @@ const canLevelUp = actor => (game.system.id === "demonlord") && (actor?.type ===
  * @returns {unknown}
  */
 function openLevelUp(actor) {
+  if ( actor?.isTransformed ) return warn("AVTTSB.LevelUp.Error.Transformed");
   if ( !canLevelUp(actor) ) return warn("AVTTSB.LevelUp.Error.NotOwner");
   return show(CharacterBuilder.levelUpId(actor), { actor });
 }

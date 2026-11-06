@@ -379,6 +379,9 @@ function nestedItems(level, parentId) {
  */
 export async function levelUpCharacter(actor, raw) {
   if ( !actor?.isOwner || (actor.type !== "character") ) throw new Error(loc("AVTTSB.LevelUp.Error.NotOwner"));
+  // Checked again here: the window may have been opened before the character (an unlinked token) was transformed in
+  // place, and the level would go to the temporary form that revertOriginalForm throws away.
+  if ( actor.isTransformed ) throw new Error(loc("AVTTSB.LevelUp.Error.Transformed"));
   const plan = { ...sanitizePlan(raw), fromLevel: Number(actor.system.level) || 0 };
   if ( plan.level <= plan.fromLevel ) throw new Error(loc("AVTTSB.LevelUp.Error.Level"));
   const docs = ownedBuild(actor);
