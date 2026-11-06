@@ -39,12 +39,14 @@ function open({ name } = {}) {
 }
 
 /**
- * Can the current user level this actor up with the builder?
+ * Can the current user level this actor up with the builder? Not a transformed form (demonlord 6.1.13's
+ * `isTransformed`, undefined before): its values include the creature's effects, and the level would be written to
+ * the temporary actor that `revertOriginalForm` deletes.
  * @param {Actor|null} actor
  * @returns {boolean}
  */
 const canLevelUp = actor => (game.system.id === "demonlord") && (actor?.type === "character") && actor.isOwner
-  && ((Number(actor.system.level) || 0) < LIMITS.level);
+  && !actor.isTransformed && ((Number(actor.system.level) || 0) < LIMITS.level);
 
 /**
  * Open the builder to level a character up.
