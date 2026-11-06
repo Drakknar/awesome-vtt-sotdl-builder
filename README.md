@@ -11,7 +11,7 @@ A guided character builder for **Shadow of the Demon Lord** on Foundry VTT v14 (
 7. **Equipment**: roll wealth for your lifestyle, add your lifestyle's starting kit and purse from the rulebook, and browse other gear.
 8. **Review**, then **Create**.
 
-**Level up** an existing character with the same window: choose **Level Up** in the character sheet's header menu, or right-click the character in the Actors sidebar. It shows only what the new levels need: each level's attribute increases and talent choices, a new path at levels 1, 3 and 7, the ancestry's level-4 choice, spells, and any professions or languages the new levels grant. The system then adds the new talents and effects. Only a transformed form (the temporary actor a character becomes when it transforms into another creature) can't level up; the original character still can.
+**Level up** an existing character with the same window: choose **Level Up** in the character sheet's header menu, or right-click the character in the Actors sidebar. It shows only what the new levels need: each level's attribute increases and talent choices, a new path at levels 1, 3 and 7, the ancestry's level-4 choice, spells, and any professions or languages the new levels grant. The system then adds the new talents and effects. A transformed form (the temporary actor a character becomes when it transforms into another creature) can't level up; the original character still can.
 
 A sidebar previews scores, Health, Defense, Perception, Speed, Size, Power and Insanity as you choose. Your progress is saved as a draft.
 
