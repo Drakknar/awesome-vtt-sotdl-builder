@@ -1,5 +1,7 @@
 # Awesome VTT – Demon Lord Character Builder
 
+<img src="assets/icon.svg" alt="" width="96" align="right">
+
 A guided character builder for **Shadow of the Demon Lord** on Foundry VTT v14 (`demonlord` system 6.1.x). One window walks you through the steps, inspired by Hero Mancer's dnd5e wizard:
 
 1. **Ancestry**: pick an ancestry, its size if there's a choice, and see its talents, languages and level-4 benefit.
