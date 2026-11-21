@@ -429,6 +429,44 @@ export async function levelUpCharacter(actor, raw) {
 const pending = new Map();
 const TIMEOUT = 120_000;
 
+/*
+ * The GM user can be connected from more than one client (a second tab, another device, a login that skips Foundry's
+ * join form). Every one of them is `activeGM.isSelf` and would create its own copy of a player's character, so the
+ * clients of that user elect one: each sends a random claim for the request, waits CLAIM_WINDOW for the others' and
+ * only the lowest claim creates. Claims count only from the same Foundry user (the server sets the sender id).
+ */
+const CLAIM_WINDOW = 500;
+const CLAIM_TTL = 10_000;
+const claims = new Map();
+
+/**
+ * The other clients' claims seen for a request (kept for CLAIM_TTL, so a claim that arrives before the request counts).
+ * @param {string} requestId
+ * @returns {Set<string>}
+ */
+function claimsFor(requestId) {
+  let seen = claims.get(requestId);
+  if ( !seen ) {
+    seen = new Set();
+    claims.set(requestId, seen);
+    setTimeout(() => claims.delete(requestId), CLAIM_TTL);
+  }
+  return seen;
+}
+
+/**
+ * Claim a request for this client: true when no other client of this user claimed it with a lower value.
+ * @param {string} requestId
+ * @returns {Promise<boolean>}
+ */
+async function electCreator(requestId) {
+  const nonce = foundry.utils.randomID();
+  const seen = claimsFor(requestId);
+  game.socket.emit(CHANNEL, { type: "claim", requestId, nonce });
+  await new Promise(resolve => setTimeout(resolve, CLAIM_WINDOW));
+  return [...seen].every(other => nonce < other);
+}
+
 /**
  * Create the character from a plan. Players without the "Create new actors" permission ask the active GM, whose
  * client checks the plan and creates it with the player as owner.
@@ -463,10 +501,16 @@ export function registerSocket() {
       else entry.resolve(String(data.actorId ?? ""));
       return;
     }
+    if ( data?.type === "claim" ) {
+      const ok = (senderId === game.user.id) && (typeof data.requestId === "string") && (typeof data.nonce === "string");
+      if ( ok ) claimsFor(data.requestId.slice(0, 32)).add(data.nonce.slice(0, 32));
+      return;
+    }
     if ( (data?.type !== "create") || !game.users.activeGM?.isSelf ) return;
     const user = game.users.get(senderId);
     const requestId = typeof data.requestId === "string" ? data.requestId.slice(0, 32) : "";
     if ( !user || user.isGM || !requestId ) return;
+    if ( !await electCreator(requestId) ) return;
     const reply = payload => game.socket.emit(CHANNEL, { type: "created", requestId, userId: user.id, ...payload });
     if ( !game.settings.get(MODULE_ID, "playersMayCreate") ) return reply({ error: loc("AVTTSB.Create.Error.NotAllowed") });
     try {
