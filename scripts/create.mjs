@@ -433,10 +433,13 @@ const TIMEOUT = 120_000;
  * The GM user can be connected from more than one client (a second tab, another device, a login that skips Foundry's
  * join form). Every one of them is `activeGM.isSelf` and would create its own copy of a player's character, so the
  * clients of that user elect one: each sends a random claim for the request, waits CLAIM_WINDOW for the others' and
- * only the lowest claim creates. Claims count only from the same Foundry user (the server sets the sender id).
+ * only the lowest claim creates. A client that already holds another client's claim when the request reaches it is
+ * late (a slow or backgrounded tab) and stays out: the earlier clients decide, and may have created already, so
+ * comparing its claim with theirs could make a second copy. Claims count only from the same Foundry user (the server
+ * sets the sender id) and are kept as long as the player waits for an answer.
  */
 const CLAIM_WINDOW = 500;
-const CLAIM_TTL = 10_000;
+const CLAIM_TTL = TIMEOUT;
 const claims = new Map();
 
 /**
@@ -455,13 +458,14 @@ function claimsFor(requestId) {
 }
 
 /**
- * Claim a request for this client: true when no other client of this user claimed it with a lower value.
+ * Claim a request for this client: true when no other client of this user claimed it first or with a lower value.
  * @param {string} requestId
  * @returns {Promise<boolean>}
  */
 async function electCreator(requestId) {
-  const nonce = foundry.utils.randomID();
   const seen = claimsFor(requestId);
+  if ( seen.size ) return false;
+  const nonce = foundry.utils.randomID();
   game.socket.emit(CHANNEL, { type: "claim", requestId, nonce });
   await new Promise(resolve => setTimeout(resolve, CLAIM_WINDOW));
   return [...seen].every(other => nonce < other);
